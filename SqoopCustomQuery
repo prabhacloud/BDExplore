@@ -1,0 +1,46 @@
+Ever wondered if you have to change the column names while transferring from any RDBMS to HDFS/Hive using SQOOP.We can co the following way:
+
+The follwoing sqoop command will transfer the data from MYSql and places it in the Hive table departments_test.In this way we can prevent 
+creating a landing table where we wanted to change the columns and create one more table with final column names.It's very simple and just
+mention it in the --query parameter as shown below.
+
+sqoop import \
+--connect jdbc:mysql://localhost/retail_db \
+--username root \
+--password cloudera \
+--query "SELECT department_id as id,department_name as name  FROM departments where \$CONDITIONS" \
+--direct \
+--m 1 \
+--hive-import \
+--create-hive-table \
+--hive-table departments_test \
+--target-dir /user/hive/warehouse/departments1 \
+--enclosed-by '\"' \
+--fields-terminated-by , \
+--escaped-by \\ \
+
+
+If you wanted to change the data on the fly we can also do so by mentioning the following parameter,which will convert the column datatypes
+on the fly and store the result in the hive table with mentioned data types.
+
+--map-column-hive id=DECIMAL,name=STRING
+
+So the full command with customization will be:
+
+
+sqoop import \
+--connect jdbc:mysql://localhost/retail_db \
+--username root \
+--password cloudera \
+--query "SELECT department_id as id,department_name as name  FROM departments where \$CONDITIONS" \
+--direct \
+--m 1 \
+--hive-import \
+--map-column-hive id=DECIMAL,name=STRING
+--create-hive-table \
+--hive-table departments_test \
+--target-dir /user/hive/warehouse/departments1 \
+--enclosed-by '\"' \
+--fields-terminated-by , \
+--escaped-by \\ \
+
